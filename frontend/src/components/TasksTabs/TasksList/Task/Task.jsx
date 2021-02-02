@@ -1,8 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Accordion, Card } from "react-bootstrap";
+import "./Task.css";
 
-const InactiveTask = ({ id, title, description }) => (
+const ActiveTask = ({
+  id, title, description, isActive,
+}) => (
   <div className="task-item">
     <Card>
       <Accordion.Toggle as={Card.Header} eventKey={id}>
@@ -11,21 +14,24 @@ const InactiveTask = ({ id, title, description }) => (
       <Accordion.Collapse eventKey={id}>
         <Card.Body>
           {description}
+          {isActive && <p>Я актуальна</p> }
         </Card.Body>
       </Accordion.Collapse>
     </Card>
   </div>
 );
 
-InactiveTask.propTypes = {
+ActiveTask.propTypes = {
   id: PropTypes.node,
   title: PropTypes.node,
   description: PropTypes.node,
+  isActive: PropTypes.node,
 };
-InactiveTask.defaultProps = {
+ActiveTask.defaultProps = {
   id: "",
   title: "",
   description: "",
+  isActive: false,
 };
 
-export default InactiveTask;
+export default ActiveTask;
