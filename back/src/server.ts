@@ -27,5 +27,5 @@ app.use( function (err: Error, req: Request, res: Response, next : NextFunction)
 });
 
 app.listen(Config.Server.port, () => {
-    console.log(new Date().toString().replace(/ \(.*\)$/,'\t') + 'App started on: ', app.get('port'))
+    console.log(new Date().toString().replace(/ \(.*\)$/,'\t') + 'App started on: ', Config.Server.port)
 })
