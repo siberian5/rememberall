@@ -10,7 +10,7 @@
     "start": "node dist/server.js"
   },
   "engines": {
-    "node": "12.13.x"
+    "node": "14.x"
   },
   "keywords": [],
   "author": "",
