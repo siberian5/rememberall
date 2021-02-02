@@ -11,13 +11,13 @@ export namespace DatabaseDefaults {
   export const pool_max = '####'
   export const pool_idle = '####'
 }
+export namespace Telegram {
+  export const token = process.env.BOTTOKEN || 'telegram-token-is-not-provided'
+}
 
 export namespace Server {
   export const port = Number(process.env.PORT || '4000')
   export const isDev = process.env.NODE_ENV === 'development'
-  // export const jwtExpirePeriod = Number(process.env.JWT_EXPIRE_PERIOD || '600') // in minutes, 600 = 10 hours in minutes
-  // export const jwtAutoProlongate = Boolean(process.env.JWT_AUTO_PROLONGATE === 'true') // false by default
-  // export const appSecret = process.env.ORDERLIST_SECRET || 'app-d3fault-s3cret'
 }
 
 export namespace Database {
@@ -37,4 +37,4 @@ export namespace Database {
 //   export const url = process.env.REDIS_URL || 'redis'
 // }
 
-export default { Database, Server/*, Redis*/ }
+export default { Database, Server, Telegram/*, Redis*/ }

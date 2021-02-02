@@ -1,31 +1,12 @@
 #!/usr/bin/node
-'use strict';
+'use strict'
 
-import { Request, Response, NextFunction } from 'express'
 
-import express from 'express'
-import bodyParser from 'body-parser'
-import Config from './Config'
+import {runExpressWebServer} from './WebServer'
+import {runTelegramBot} from './TelegramBot'
 
-const app = express()
+console.log('starting environment: ')
+console.log(process.env)
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: true}))
-
-//404
-app.use((req, res) => {
-    res.type('text/plain')
-    res.status(404)
-    res.send('Not found')
-});
-
-//500
-app.use( function (err: Error, req: Request, res: Response, next : NextFunction) {
-    res.type('text/plain')
-    res.status(500)
-    res.send('Server error')
-});
-
-app.listen(Config.Server.port, () => {
-    console.log(new Date().toString().replace(/ \(.*\)$/,'\t') + 'App started on: ', Config.Server.port)
-})
+runExpressWebServer()
+runTelegramBot()
