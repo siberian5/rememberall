@@ -1,4 +1,4 @@
-//Keyboard config
+//Keyboard config for the TelegramBot
 export const ru_keyboard = [
     [{
         text: 'Лодку мне!', // button caption

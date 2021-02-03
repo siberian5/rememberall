@@ -1,12 +1,11 @@
 import TelegramBot, {CallbackQuery} from 'node-telegram-bot-api'
 import Config from './Config'
 import * as keyboards from './Keyboards'
+import {DataClient} from "./data/DataProvider";
 
-export const runTelegramBot = () => {
+export const runTelegramBot = (client: DataClient ) => {
 
     const bot = new TelegramBot(Config.Telegram.token, { polling: true });
-
-
 
     bot.on('message', (msg) => {
         const chatId = msg.chat.id //get dialog_id to reply to specified user
