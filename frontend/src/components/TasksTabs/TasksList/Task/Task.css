@@ -1,7 +1,14 @@
+.task-item {
+  margin-bottom: 10px;
+}
 .card-body {
     background-color: rgb(255, 255, 255);
-  }
-  .card-header {
     text-align: left;
-    background-color: #fff;
   }
+.card-body p {
+  margin-bottom: 0;
+}
+.card-header {
+  text-align: left;
+  background-color: #fff;
+}
