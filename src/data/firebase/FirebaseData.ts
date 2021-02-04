@@ -17,6 +17,7 @@ export type ModelOps = {
     listAllUserTasks: ReturnType<typeof listAllUserTasksLimited>
     addTask: ReturnType<typeof addTask>
     getTaskByName: ReturnType<typeof getTaskByName>
+    setTaskWithName: ReturnType<typeof setTaskWithName>
 }
 
 export type UserId = number
@@ -29,6 +30,9 @@ export type Task = {
 }
 export type WithDate = {
     time: Date
+}
+export type WithId = {
+    id: string
 }
 export type WithTimestamp = {
     time: Timestamp
@@ -92,8 +96,41 @@ export const listAllUserTasksLimited = (firestore: () => Firestore) => async (id
 }
 
 // todo
-export const getTaskByName = (firestore: () => Firestore) => async (id: UserId, taskName: string)
+export const setTaskWithName = (firestore: () => Firestore) => async (taskId: number, task: Task & WithDate)
     :Promise<Task & WithDate | null> => {
+
+    // const tasksSnapshot = await firestore()
+    //     .collection('tasks')
+    //     .where('userId', '==', id )
+    //     .where('name', '==', taskName)
+    //     .get()
+    //
+    //
+    // if (tasksSnapshot.empty) {
+    //     return null
+    // }
+    //
+    // let result: (Task & WithDate)[] = []
+    //
+    // // там только один агрегат
+    //
+    // tasksSnapshot.forEach(taskHolder => {
+    //     const taskData = taskHolder.data()
+    //
+    //     result.push({description: taskData.description,
+    //         done: taskData.done,
+    //         time: taskData.time.toDate(),
+    //         name: taskData.name,
+    //     })
+    // })
+    //
+    // return result[0]
+    return null
+}
+
+
+export const getTaskByName = (firestore: () => Firestore) => async (id: UserId, taskName: string)
+    :Promise<Task & WithDate & WithId | null> => {
 
     const tasksSnapshot = await firestore()
         .collection('tasks')
@@ -117,6 +154,7 @@ export const getTaskByName = (firestore: () => Firestore) => async (id: UserId, 
             done: taskData.done,
             time: taskData.time.toDate(),
             name: taskData.name,
+            id: taskHolder.id
         })
     })
 
@@ -161,7 +199,8 @@ export async function create(client: DataClient): Promise<ModelOps> {
         listAllUserTasks: listAllUserTasksLimited(firestore),
         listUnfinishedUserTasks: listUnfinishedUserTasks(firestore),
         addTask: addTask(firestore),
-        getTaskByName: getTaskByName(firestore)
+        getTaskByName: getTaskByName(firestore),
+        setTaskWithName: setTaskWithName(firestore)
     }
 }
 

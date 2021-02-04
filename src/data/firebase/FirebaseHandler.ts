@@ -1,5 +1,5 @@
 import {DataClient} from '../DataProvider'
-import FirebaseData, {ModelOps, Task, WithDate} from './FirebaseData'
+import FirebaseData, {ModelOps, Task, UserId, WithDate} from './FirebaseData'
 
 /*
     Это высокоуровневый интерфейс БД.
@@ -28,6 +28,34 @@ export const addNewTask = (firestoreOps: ModelOps) => async (task : Task ) => {
     return nextVal
 }
 
+export const finishTask = (firestoreOps: ModelOps) => async (userId: UserId, taskName: string ) => {
+
+    const task = await firestoreOps.getTaskByName(userId, taskName)
+    if(task === null) return null
+
+    task.done = true
+
+    // task.
+
+
+
+
+    // const userId = task.userId!
+    // const counterVal = await firestoreOps.getCounter(userId)
+    //
+    // const nextVal = counterVal+ 1
+    //
+    // const taskWithDate = task as unknown as Task & WithDate
+    //
+    // taskWithDate.name = '/task'+nextVal
+    // taskWithDate.time = new Date()
+    // taskWithDate.done = false
+    //
+    // await firestoreOps.addTask(taskWithDate)
+    // await firestoreOps.setCounter(userId, nextVal)
+    //
+    // return nextVal
+}
 
 export const listAllUserTasks = (firestoreOps: ModelOps) => async (userId : number, limit: number) => {
     return firestoreOps.listAllUserTasks(userId, limit)
