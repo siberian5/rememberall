@@ -17,26 +17,21 @@ export type ModelOps = {
     listAllUserTasks: ReturnType<typeof listAllUserTasksLimited>
     addTask: ReturnType<typeof addTask>
     getTaskByName: ReturnType<typeof getTaskByName>
-    setTaskWithName: ReturnType<typeof setTaskWithName>
+    updateTaskById: ReturnType<typeof updateTaskById>
 }
 
 export type UserId = number
-
+export type TaskName = string
+export type TaskDescription = string
+export type TaskId = string
 export type Task = {
-    description: string
-    done?: boolean
-    name?: string
-    userId?: UserId
-}
-export type WithDate = {
+    name: TaskName
+    description: TaskDescription
     time: Date
+    done: boolean
 }
-export type WithId = {
-    id: string
-}
-export type WithTimestamp = {
-    time: Timestamp
-}
+export type TaskWithId = {task: Task, taskId: TaskId}
+
 
 export const listUnfinishedUserTasks = (firestore: () => Firestore) => async (id: UserId, limit: number) => {
     const tasksSnapshot = await firestore()
@@ -47,7 +42,7 @@ export const listUnfinishedUserTasks = (firestore: () => Firestore) => async (id
         .limit(limit)
         .get()
 
-    const result: (Task & WithDate)[] = []
+    const result: (Task)[] = []
 
     if (tasksSnapshot.empty) {
         return result
@@ -55,11 +50,11 @@ export const listUnfinishedUserTasks = (firestore: () => Firestore) => async (id
 
     tasksSnapshot.forEach(taskHolder => {
         const taskData = taskHolder.data()
-        // console.log(taskHolder.id, '=>', taskHolder.data());
-        result.push({description: taskData.description,
-            done: taskData.done,
-            time: taskData.time.toDate(),
+        result.push({
             name: taskData.name,
+            description: taskData.description,
+            time: taskData.time.toDate(),
+            done: taskData.done,
         })
     })
 
@@ -67,16 +62,16 @@ export const listUnfinishedUserTasks = (firestore: () => Firestore) => async (id
 }
 
 // Специальный индеск создан в файрбейсе для этого запроса
-export const listAllUserTasksLimited = (firestore: () => Firestore) => async (id: UserId, limit: number) => {
+export const listAllUserTasksLimited = (firestore: () => Firestore) => async (userId: UserId, limit: number) => {
 
     const tasksSnapshot = await firestore()
         .collection('tasks')
-        .where('userId', '==', id )
+        .where('userId', '==', userId )
         .orderBy('time', 'desc' )
         .limit(limit)
         .get()
 
-    const result: (Task & WithDate)[] = []
+    const result: (Task)[] = []
 
     if (tasksSnapshot.empty) {
         return result
@@ -84,57 +79,36 @@ export const listAllUserTasksLimited = (firestore: () => Firestore) => async (id
 
     tasksSnapshot.forEach(taskHolder => {
         const taskData = taskHolder.data()
-        // console.log(taskHolder.id, '=>', taskHolder.data());
-        result.push({description: taskData.description,
-                     done: taskData.done,
-                     time: taskData.time.toDate(),
-                     name: taskData.name,
+        result.push({
+            name: taskData.name,
+            description: taskData.description,
+            time: taskData.time.toDate(),
+            done: taskData.done,
         })
     })
 
     return result
 }
 
-// todo
-export const setTaskWithName = (firestore: () => Firestore) => async (taskId: number, task: Task & WithDate)
-    :Promise<Task & WithDate | null> => {
+export const updateTaskById = (firestore: () => Firestore) => async (userId: UserId, taskId: TaskId, task: Task) => {
 
-    // const tasksSnapshot = await firestore()
-    //     .collection('tasks')
-    //     .where('userId', '==', id )
-    //     .where('name', '==', taskName)
-    //     .get()
-    //
-    //
-    // if (tasksSnapshot.empty) {
-    //     return null
-    // }
-    //
-    // let result: (Task & WithDate)[] = []
-    //
-    // // там только один агрегат
-    //
-    // tasksSnapshot.forEach(taskHolder => {
-    //     const taskData = taskHolder.data()
-    //
-    //     result.push({description: taskData.description,
-    //         done: taskData.done,
-    //         time: taskData.time.toDate(),
-    //         name: taskData.name,
-    //     })
-    // })
-    //
-    // return result[0]
-    return null
+    const updatedTaskFB = {
+        userId : userId,
+        description: task.description,
+        done: task.done,
+        name: task.name,
+        time: Timestamp.fromDate(task.time)
+    }
+
+    return await firestore().collection('tasks').doc(taskId).set(updatedTaskFB)
 }
 
-
-export const getTaskByName = (firestore: () => Firestore) => async (id: UserId, taskName: string)
-    :Promise<Task & WithDate & WithId | null> => {
+export const getTaskByName = (firestore: () => Firestore) => async (userId: UserId, taskName: string)
+    :Promise<TaskWithId | null> => {
 
     const tasksSnapshot = await firestore()
         .collection('tasks')
-        .where('userId', '==', id )
+        .where('userId', '==', userId )
         .where('name', '==', taskName)
         .get()
 
@@ -143,31 +117,39 @@ export const getTaskByName = (firestore: () => Firestore) => async (id: UserId, 
         return null
     }
 
-    let result: (Task & WithDate)[] = []
+    let result: (TaskWithId)[] = []
 
     // там только один агрегат
 
     tasksSnapshot.forEach(taskHolder => {
+
         const taskData = taskHolder.data()
 
-        result.push({description: taskData.description,
-            done: taskData.done,
-            time: taskData.time.toDate(),
-            name: taskData.name,
-            id: taskHolder.id
-        })
+        result.push(
+            {   task: {
+                        description: taskData.description,
+                        done: taskData.done,
+                        time: taskData.time.toDate(),
+                        name: taskData.name
+                    },
+                taskId: taskHolder.id
+            })
     })
 
     return result[0]
 }
 
-export const addTask = (firestore: () => Firestore) => async (task: Task & WithDate) => {
+export const addTask = (firestore: () => Firestore) => async (userId: UserId, task: Task) => {
 
-    const date = task.time
-    const taskTS : Task & WithTimestamp = task as unknown as (Task & WithTimestamp)
-    taskTS.time = Timestamp.fromDate(date)
+    const newTaskFB = {
+        userId : userId,
+        description: task.description,
+        done: task.done,
+        name: task.name,
+        time: Timestamp.fromDate(task.time)
+    }
 
-    await firestore().collection('tasks').add(taskTS)
+    await firestore().collection('tasks').add(newTaskFB)
 }
 
 export const getCounter = (firestore: () => Firestore) => async (id: UserId)
@@ -200,7 +182,7 @@ export async function create(client: DataClient): Promise<ModelOps> {
         listUnfinishedUserTasks: listUnfinishedUserTasks(firestore),
         addTask: addTask(firestore),
         getTaskByName: getTaskByName(firestore),
-        setTaskWithName: setTaskWithName(firestore)
+        updateTaskById: updateTaskById(firestore)
     }
 }
 

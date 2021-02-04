@@ -3,7 +3,12 @@ import express, {NextFunction, Request, Response} from 'express'
 import bodyParser from 'body-parser'
 import Config from './Config'
 import { DataClient } from './data/DataProvider'
-import FirebaseHandler from './data/firebase/FirebaseHandler'
+import FirebaseHandler, {
+    addNewTask, finishTask,
+    getTaskByName,
+    listAllUserTasks,
+    listUnfinishedUserTasks
+} from './data/firebase/FirebaseHandler'
 
 export const runExpressWebServer = (client: DataClient ) => {
 
@@ -13,59 +18,80 @@ export const runExpressWebServer = (client: DataClient ) => {
 
     app.get('/', async (req : Request, res : Response) => {
 
-        /*
+        // Ниже приведены примеры использования функций доступа к БД:
 
-        Все операции с базой данных выполняются с какими-то параметрами.
-
-
-
-        вывести все задачи юзера:
-
-        const allTasks = await (await FirebaseHandler.create(client)).listAllUserTasks(404203742, 20)     // id юзера, лимит
+        //            listAllUserTasks
+        //            listUnfinishedUserTasks
+        //            addNewTask
+        //            getTaskByName
+        //            finishTask
 
 
-
-        вывести все незаконченные задачи:
-
-        const unfinishedTasks = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)    // id юзера, лимит
-
-
-
-        вывести конкретную задачу юзера по имени:
-
-        const task = await (await FirebaseHandler.create(client)).getTaskByName(404203742, '/task2')
-
-
-
-        Добавить к списку задач новую:
-
-            Сначала её создаём:
-
-            const newTask = {
-                description: 'Выйти на улицу',
-                userId:404203742
-            } as Task
-
-
-            Затем сохраняем в базе:
-
-            await (await FirebaseHandler.create(client)).addNewTask(newTask)
-
-         */
-
-
-        // userId берётся из сообщения телеграмма: см "const chatId = query.message.chat.id" в TelegramBot
-        const task = await (await FirebaseHandler.create(client)).getTaskByName(404203742, '/task2')
+        // Достанем список нерешённых задач:
+        // Для этого нужно указать два параметра.
+        // id юзера и лимит.
 
         // лимит нужно указывать, чтобы не выкачивать через бота всю облачную базу.
         // лимита на лимит нет. Это может быть большое число.
         // Разумно указывать столько, сколько нужно на экране показать.
-        const unfinishedTasks = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)
+        const unfinishedTasks1 = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)
+
+        // Выберем одну из задач. Если список оказался пустым, здесь ничего не будет.
+        const oneTask = unfinishedTasks1.pop()
+        let solvedTask
+
+        // Обозначим задачу завершённой:
+        if (oneTask) {
+            await (await FirebaseHandler.create(client)).finishTask(404203742, oneTask.name)
+
+            // Теперь эта задача завершена.
+            // Выведем её детали:
+            solvedTask = await (await FirebaseHandler.create(client)).getTaskByName(404203742, oneTask.name)
+        }
+
+        // Спросим снова базу:
+        const unfinishedTasks2 = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)
+
+        // Создадим новую задачу:
+
+        const taskDescription = 'повесить картину' + '#' + Date.now()
+        await (await FirebaseHandler.create(client)).addNewTask(404203742, taskDescription)
+
+        // Спросим снова базу:
+        const unfinishedTasks3 = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)
+
+        // Спросим у базы вообще все задачи ( и решённые и нет ) :
+        const allTasks = await (await FirebaseHandler.create(client)).listAllUserTasks(404203742, 20)
 
 
         res.type('text/plain')
         res.status(200)
-        res.send('одна задача:\n' + JSON.stringify(task) + '\nнесколько невыполненных задач:\n' + JSON.stringify(unfinishedTasks))
+        res.send(`
+        
+        список невыполненных задач мы получаем вызовом "await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(<userId>, <limit>)": 
+        
+        ${unfinishedTasks1}
+        
+        одна из них: 
+        ${oneTask}
+        
+        Решить задачу можно вызвав "await (await FirebaseHandler.create(client)).getTaskByName(<userId>, <taskName>)":
+        
+        Решённая задача:
+        ${solvedTask}
+        
+        Обновлённый список:
+        ${unfinishedTasks2}
+        
+        Создадим новую задачу с описанием "${taskDescription}":"const taskDescription = 'повесить картину'
+        await (await FirebaseHandler.create(client)).addNewTask(404203742, taskDescription)"
+        
+        Обновлённый список:
+        ${unfinishedTasks3}
+        
+        Вообще все задачи: "await (await FirebaseHandler.create(client)).listAllUserTasks(404203742, 20)"
+        ${allTasks}
+       `)
     })
 
     app.post('/', async (req : Request, res : Response) => {
