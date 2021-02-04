@@ -70,27 +70,27 @@ export const runExpressWebServer = (client: DataClient ) => {
         
         список невыполненных задач мы получаем вызовом "await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(<userId>, <limit>)": 
         
-        ${unfinishedTasks1}
+        ${JSON.stringify(unfinishedTasks1)}
         
         одна из них: 
-        ${oneTask}
+        ${JSON.stringify(oneTask)}
         
         Решить задачу можно вызвав "await (await FirebaseHandler.create(client)).getTaskByName(<userId>, <taskName>)":
         
         Решённая задача:
-        ${solvedTask}
+        ${JSON.stringify(solvedTask)}
         
         Обновлённый список:
-        ${unfinishedTasks2}
+        ${JSON.stringify(unfinishedTasks2)}
         
         Создадим новую задачу с описанием "${taskDescription}":"const taskDescription = 'повесить картину'
         await (await FirebaseHandler.create(client)).addNewTask(404203742, taskDescription)"
         
         Обновлённый список:
-        ${unfinishedTasks3}
+        ${JSON.stringify(unfinishedTasks3)}
         
         Вообще все задачи: "await (await FirebaseHandler.create(client)).listAllUserTasks(404203742, 20)"
-        ${allTasks}
+        ${JSON.stringify(allTasks)}
        `)
     })
 
