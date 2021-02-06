@@ -12,8 +12,18 @@ export const runExpressWebServer = (client: DataClient ) => {
     app.use(bodyParser.urlencoded({extended: true}))
 
 
-    // get unfinished tasks:
+    // get all tasks:
     app.get('/users/:userId/tasks', async (req : Request, res : Response) => {
+
+        const allTasks = await (await FirebaseHandler.create(client)).listAllUserTasks(+req.params.userId, 20)
+
+        res.type('application/json')
+        res.status(200)
+        res.send(JSON.stringify(allTasks)+'\n')
+    })
+
+    // get unfinished tasks:
+    app.get('/users/:userId/tasks-unfinished', async (req : Request, res : Response) => {
 
         const unfinishedTasks = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(+req.params.userId, 20)
 
@@ -62,13 +72,24 @@ export const runExpressWebServer = (client: DataClient ) => {
     app.get('/', async (req : Request, res : Response) => {
 
         const response = `
-        
-        чтобы получить список текущих незавершённых дел юзера,
+
+
+        чтобы получить список последних 20ти дел юзера ( и завершённых и незавершённых ),
         нужно послать GET-запрос по адресу: https://remembrallbot.herokuapp.com/users/404203742/tasks
         в формате '/users/<userId>/tasks'                                                             
         
         curl-пример: 
         curl https://remembrallbot.herokuapp.com/users/404203742/tasks
+
+
+
+
+        
+        чтобы получить список текущих незавершённых дел юзера,
+        нужно послать GET-запрос по другой URLе.
+        
+        curl-пример: 
+        curl https://remembrallbot.herokuapp.com/users/404203742/tasks-unfinished
         
         
         
