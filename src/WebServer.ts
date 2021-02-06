@@ -16,6 +16,27 @@ export const runExpressWebServer = (client: DataClient ) => {
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({extended: true}))
 
+
+
+        // get:
+        // listUnfinishedUserTasks: listUnfinishedUserTasks(firebaseModel),
+
+        // post:
+        // addNewTask: addNewTask(firebaseModel),
+        // finishTask: finishTask(firebaseModel)
+        // getTaskByName: getTaskByName(firebaseModel), ( во вторую очередь )
+
+
+
+    app.post('/', async (req : Request, res : Response) => {
+        res.type('text/plain')
+        res.status(200)
+        res.send('POST?')
+    })
+
+
+
+    // default
     app.get('/', async (req : Request, res : Response) => {
 
         // Ниже приведены примеры использования функций доступа к БД:
@@ -94,11 +115,6 @@ export const runExpressWebServer = (client: DataClient ) => {
        `)
     })
 
-    app.post('/', async (req : Request, res : Response) => {
-        res.type('text/plain')
-        res.status(200)
-        res.send('POST?')
-    })
 
     //404
     app.use((req, res) => {
