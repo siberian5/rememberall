@@ -18,6 +18,16 @@ Remembrall project for CompTech Winter School 2021
  - Firebase
  - Node.js
  
+## Changelog:
+ ### v.01  -YOU ARE HERE
+
+  -You can add new tasks to your list
+  -You can see your tasks
+ ### v.02
+  -You can mark your tasks as finished
+  -You can see finished tasks
+  -More cool stuff, stay tuned...
+ 
 ## Environment variables:
 There is some variables, that should be set on your server to get this bot running. And to hide some credentials from curious people.
 
