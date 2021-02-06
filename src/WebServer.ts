@@ -35,9 +35,6 @@ export const runExpressWebServer = (client: DataClient ) => {
         res.send( `new task with the description: "${taskDescription}" is posted\n`)
     })
 
-
-    //todo: Показать как передавать!
-
     // finish task
     app.post('/users/:userId/finish-task', async (req : Request, res : Response) => {
 
@@ -62,14 +59,40 @@ export const runExpressWebServer = (client: DataClient ) => {
         res.send(JSON.stringify(task)+'\n')
     })
 
-    //todo написать потом
-    // default
     app.get('/', async (req : Request, res : Response) => {
 
         const response = `
         
-        get to http://localhost:4000/users/404203742/tasks
-
+        чтобы получить список текущих незавершённых дел юзера,
+        нужно послать GET-запрос по адресу: https://remembrallbot.herokuapp.com/users/404203742/tasks
+        в формате '/users/<userId>/tasks'                                                             
+        
+        curl-пример: 
+        curl https://remembrallbot.herokuapp.com/users/404203742/tasks
+        
+        
+        
+        чтобы добавить новую задачу, нужно в теле запроза передать 
+        сообщение в формате "description=<кодированное описание>"
+        описание кодируется функцией 'encodeURI'
+        
+        curl-пример: 
+        curl https://remembrallbot.herokuapp.com/users/404203742/new-task --data "description=%D0%BF%D0%BD%D1%83%D1%82%D1%8C%20%D0%BF%D0%BD%D1%8F"
+        
+        
+        
+        чтобы завершить задачу, делается то же самое, не передаётся имя задачи:
+        сообщение в формате "name=<имя-задачи>"
+        Его можно не кодировать, т.к. ни пробелов, ни национальных символов имя не содержит.
+        
+        curl https://remembrallbot.herokuapp.com/users/404203742/finish-task --data "name=/task32"
+        
+        
+        
+        Чтобы по имени вывести детали какого-то задания, 
+        передаются те же данные, но по другой урле:
+        
+        curl https://remembrallbot.herokuapp.com/users/404203742/get-task --data "name=/task32"
         
        `
 
