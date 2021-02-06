@@ -1,7 +1,3 @@
-export namespace Telegram {
-  export const token = process.env.BOTTOKEN || 'telegram-token-is-not-provided'
-}
-
 export namespace Server {
   export const port = Number(process.env.PORT || '4000')
   export const isDev = process.env.NODE_ENV === 'development'
