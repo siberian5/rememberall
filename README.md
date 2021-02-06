@@ -19,19 +19,19 @@ Remembrall project for CompTech Winter School 2021
  - Node.js
  
 ## Changelog:
- ### v.01  -YOU ARE HERE
 
-  -You can add new tasks to your list
-  -You can see your tasks
- ### v.02
-  -You can mark your tasks as finished
-  -You can see finished tasks
-  -More cool stuff, stay tuned...
+ ## v.01  -YOU ARE HERE
+  - You can add new tasks to your list
+  - You can see your tasks
+ ## v.02
+  - You can mark your tasks as finished
+  - You can see finished tasks
+  - More cool stuff, stay tuned...
  
 ## Environment variables:
 There is some variables, that should be set on your server to get this bot running. And to hide some credentials from curious people.
 
-### Backend:
+## Backend:
  - FIREBASE_API_KEY    \\all vars with "FIREBASE" prefix are used to get access to your firebase DB
  - FIREBASE_AUTH_DOMAIN
  - FIREBASE_APP_ID
@@ -40,7 +40,7 @@ There is some variables, that should be set on your server to get this bot runni
  - FIREBASE_STORAGE_BUCKET
  - PORT
  
-### Frontend:
+## Frontend:
  - NODE_ENV
  - TELEGRAM_TOKEN \\token from @BotFather to control your bot
  - WEBHOOK_HOST
