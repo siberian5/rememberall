@@ -14,4 +14,4 @@ export namespace Firebase {
 }
 
 
-export default { Firebase, Server, Telegram }
+export default { Firebase, Server }
