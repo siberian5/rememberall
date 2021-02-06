@@ -3,12 +3,7 @@ import express, {NextFunction, Request, Response} from 'express'
 import bodyParser from 'body-parser'
 import Config from './Config'
 import { DataClient } from './data/DataProvider'
-import FirebaseHandler, {
-    addNewTask, finishTask,
-    getTaskByName,
-    listAllUserTasks,
-    listUnfinishedUserTasks
-} from './data/firebase/FirebaseHandler'
+import FirebaseHandler  from './data/firebase/FirebaseHandler'
 
 export const runExpressWebServer = (client: DataClient ) => {
 
@@ -17,102 +12,75 @@ export const runExpressWebServer = (client: DataClient ) => {
     app.use(bodyParser.urlencoded({extended: true}))
 
 
+    // get unfinished tasks:
+    app.get('/users/:userId/tasks', async (req : Request, res : Response) => {
 
-        // get:
-        // listUnfinishedUserTasks: listUnfinishedUserTasks(firebaseModel),
+        const unfinishedTasks = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(+req.params.userId, 20)
 
-        // post:
-        // addNewTask: addNewTask(firebaseModel),
-        // finishTask: finishTask(firebaseModel)
-        // getTaskByName: getTaskByName(firebaseModel), ( во вторую очередь )
-
-
-
-    app.post('/', async (req : Request, res : Response) => {
-        res.type('text/plain')
+        res.type('application/json')
         res.status(200)
-        res.send('POST?')
+        res.send(JSON.stringify(unfinishedTasks)+'\n')
     })
 
 
+    // add new task
+    app.post('/users/:userId/new-task', async (req : Request, res : Response) => {
 
-    // default
-    app.get('/', async (req : Request, res : Response) => {
+        const taskDescription = req.body.description
 
-        // Ниже приведены примеры использования функций доступа к БД:
-
-        //            listAllUserTasks
-        //            listUnfinishedUserTasks
-        //            addNewTask
-        //            getTaskByName
-        //            finishTask
-
-
-        // Достанем список нерешённых задач:
-        // Для этого нужно указать два параметра.
-        // id юзера и лимит.
-
-        // лимит нужно указывать, чтобы не выкачивать через бота всю облачную базу.
-        // лимита на лимит нет. Это может быть большое число.
-        // Разумно указывать столько, сколько нужно на экране показать.
-        const unfinishedTasks1 = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)
-
-        // Выберем одну из задач. Если список оказался пустым, здесь ничего не будет.
-        const oneTask = unfinishedTasks1.pop()
-        let solvedTask
-
-        // Обозначим задачу завершённой:
-        if (oneTask) {
-            await (await FirebaseHandler.create(client)).finishTask(404203742, oneTask.name)
-
-            // Теперь эта задача завершена.
-            // Выведем её детали:
-            solvedTask = await (await FirebaseHandler.create(client)).getTaskByName(404203742, oneTask.name)
-        }
-
-        // Спросим снова базу:
-        const unfinishedTasks2 = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)
-
-        // Создадим новую задачу:
-
-        const taskDescription = 'повесить картину' + '#' + Date.now()
-        await (await FirebaseHandler.create(client)).addNewTask(404203742, taskDescription)
-
-        // Спросим снова базу:
-        const unfinishedTasks3 = await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(404203742, 20)
-
-        // Спросим у базы вообще все задачи ( и решённые и нет ) :
-        const allTasks = await (await FirebaseHandler.create(client)).listAllUserTasks(404203742, 20)
-
+        await (await FirebaseHandler.create(client)).addNewTask(+req.params.userId, taskDescription)
 
         res.type('text/plain')
         res.status(200)
-        res.send(`
+        res.send( `new task with the description: "${taskDescription}" is posted\n`)
+    })
+
+
+    //todo: Показать как передавать!
+
+    // finish task
+    app.post('/users/:userId/finish-task', async (req : Request, res : Response) => {
+
+        const taskName = req.body.name
+
+        await (await FirebaseHandler.create(client)).finishTask(+req.params.userId, taskName)
+
+        res.type('text/plain')
+        res.status(200)
+        res.send( `the task with the name: "${taskName}" is finished\n`)
+    })
+
+    // get taskByName
+    app.post('/users/:userId/get-task', async (req : Request, res : Response) => {
+
+        const taskName = req.body.name
+
+        const task = await (await FirebaseHandler.create(client)).getTaskByName(+req.params.userId, taskName)
+
+        res.type('text/plain')
+        res.status(200)
+        res.send( `the task with the name: "${taskName}" is finished\n`)
+
+        res.type('application/json')
+        res.status(200)
+        res.send(JSON.stringify(task)+'\n')
+    })
+
+    //todo написать потом
+    // default
+    app.get('/', async (req : Request, res : Response) => {
+
+        const response = `
         
-        список невыполненных задач мы получаем вызовом "await (await FirebaseHandler.create(client)).listUnfinishedUserTasks(<userId>, <limit>)": 
+        get to http://localhost:4000/users/404203742/tasks
+
         
-        ${JSON.stringify(unfinishedTasks1)}
-        
-        одна из них: 
-        ${JSON.stringify(oneTask)}
-        
-        Решить задачу можно вызвав "await (await FirebaseHandler.create(client)).getTaskByName(<userId>, <taskName>)":
-        
-        Решённая задача:
-        ${JSON.stringify(solvedTask)}
-        
-        Обновлённый список:
-        ${JSON.stringify(unfinishedTasks2)}
-        
-        Создадим новую задачу с описанием "${taskDescription}":"const taskDescription = 'повесить картину'
-        await (await FirebaseHandler.create(client)).addNewTask(404203742, taskDescription)"
-        
-        Обновлённый список:
-        ${JSON.stringify(unfinishedTasks3)}
-        
-        Вообще все задачи: "await (await FirebaseHandler.create(client)).listAllUserTasks(404203742, 20)"
-        ${JSON.stringify(allTasks)}
-       `)
+       `
+
+        res.type('text/plain')
+        res.status(200)
+        res.send(response)
+
     })
 
 
