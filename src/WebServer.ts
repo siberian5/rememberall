@@ -51,10 +51,12 @@ export const runExpressWebServer = (client: DataClient ) => {
         const taskName = req.body.name
 
         await (await FirebaseHandler.create(client)).finishTask(+req.params.userId, taskName)
+        const task = await (await FirebaseHandler.create(client)).getTaskByName(+req.params.userId, taskName)
 
-        res.type('text/plain')
+        res.type('application/json')
         res.status(200)
-        res.send( `the task with the name: "${taskName}" is finished\n`)
+        res.send(JSON.stringify(task)+'\n')
+
     })
 
     // get taskByName
