@@ -10,7 +10,7 @@ Remembrall project for CompTech Winter School 2021
  - Andrey Martyanov - curator of the project
  - Alexandr Wolzhankin - captain/DevOps
  - Maxim Erofeev - Backend developer
- - Irina Orlova - frontend developer
+ - Irina Popova - frontend developer
  - Anastasia Starostina - technical writer
  
 ## Technologies
