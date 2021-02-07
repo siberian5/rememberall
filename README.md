@@ -26,6 +26,7 @@ Remembrall project for CompTech Winter School 2021
  ## v.02  -YOU ARE HERE
   - You can mark your tasks as finished
   - You can see finished tasks
+  - Added buttons, everybody loves buttons..
  ## v.03 
   - More cool stuff, stay tuned...
  
