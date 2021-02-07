@@ -20,12 +20,13 @@ Remembrall project for CompTech Winter School 2021
  
 ## Changelog:
 
- ## v.01  -YOU ARE HERE
+ ## v.01 
   - You can add new tasks to your list
   - You can see your tasks
- ## v.02
+ ## v.02  -YOU ARE HERE
   - You can mark your tasks as finished
   - You can see finished tasks
+ ## v.03 
   - More cool stuff, stay tuned...
  
 ## Environment variables:
