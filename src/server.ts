@@ -2,7 +2,7 @@
 'use strict'
 
 import DataProvider from './data/DataProvider'
-import {runExpressWebServer} from './WebServer'
+import {runTelegramBot} from './TelegramBot'
 
 async function main() {
 
@@ -12,7 +12,8 @@ async function main() {
 
     const dataClient = await DataProvider.create()
 
-    runExpressWebServer(dataClient)
+    // runExpressWebServer(dataClient)
+    runTelegramBot(dataClient)
 }
 
 main().then(_ => {})

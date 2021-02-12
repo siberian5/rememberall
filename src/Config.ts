@@ -1,6 +1,14 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+
+/*
 export namespace Server {
   export const port = Number(process.env.PORT || '4000')
   export const isDev = process.env.NODE_ENV === 'development'
+}
+*/
+
+export namespace Telegram {
+  export const token = process.env.TELEGA_BOT_TOKEN || 'not-provided'
 }
 
 export namespace Firebase {
@@ -13,5 +21,4 @@ export namespace Firebase {
   // export const databaseUrl = process.env.FIREBASE_DATABASE_URL || 'not-provided'
 }
 
-
-export default { Firebase, Server }
+export default { Firebase/*, Server*/, Telegram }
